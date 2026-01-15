@@ -66,7 +66,7 @@ lsof -ti:8000 | xargs kill -9
 }
 ```
 
-The chat endpoint uses OpenAI's GPT-5 model with a meal prep planner assistant system prompt, specifically designed to help Indian students abroad plan meals that are budget-friendly, time-efficient, and remind them of home.
+The chat endpoint uses OpenAI's GPT-4o-mini model with a meal prep planner assistant system prompt, specifically designed to help Indian students abroad plan meals that are budget-friendly, time-efficient, and remind them of home.
 
 ### Root Endpoint
 - **URL**: `/`

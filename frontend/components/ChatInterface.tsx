@@ -115,9 +115,22 @@ export default function ChatInterface() {
       };
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
+      // Provide more helpful error messages
+      let errorContent = 'Sorry, I encountered an error. Please try again.';
+      if (error instanceof Error) {
+        // Show user-friendly error message
+        if (error.message.includes('OPENAI_API_KEY')) {
+          errorContent = 'Error: OpenAI API key is not configured. Please check your backend setup.';
+        } else if (error.message.includes('HTTP error')) {
+          errorContent = 'Error: Could not connect to the backend. Please make sure the backend server is running on port 8000.';
+        } else {
+          errorContent = `Error: ${error.message}`;
+        }
+      }
+      
       const errorMessage: Message = {
         role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
+        content: errorContent,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
