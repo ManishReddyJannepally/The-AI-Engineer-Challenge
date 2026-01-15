@@ -22,15 +22,15 @@ This guide will help you deploy your LLM chat application to Vercel.
 
 3. **Configure Project Settings**
    
-   **CRITICAL:** Since your Next.js app is in the `frontend/` subdirectory, you MUST configure:
+   **IMPORTANT:** The `vercel.json` is configured to handle both frontend and API:
    
-   - **Root Directory:** Set to `frontend` ⚠️ (This is the most important setting!)
-   - **Framework Preset:** Next.js (should auto-detect after setting root directory)
-   - **Build Command:** Leave as default (`npm run build`) - Vercel will run this from the frontend directory
-   - **Output Directory:** Leave as default (`.next`) - Vercel will use this from the frontend directory
-   - **Install Command:** Leave as default (`npm install`) - Vercel will run this from the frontend directory
+   - **Root Directory:** Leave as `.` (root) ⚠️ (DO NOT set to `frontend` - this hides the `api/` folder!)
+   - **Framework Preset:** Next.js (will be detected from vercel.json config)
+   - **Build Command:** Already configured in vercel.json (`cd frontend && npm install && npm run build`)
+   - **Output Directory:** Already configured in vercel.json (`frontend/.next`)
+   - **Install Command:** Already configured in vercel.json (`cd frontend && npm install`)
    
-   **Note:** If you don't set Root Directory to `frontend`, Vercel will look for package.json in the root and fail!
+   **Critical:** If you set Root Directory to `frontend`, Vercel won't see the `api/` folder and your backend will return 404!
 
 4. **Environment Variables**
    
