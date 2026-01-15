@@ -1,9 +1,10 @@
-# Frontend - LLM Chat Application
+# Frontend - Meal Prep Planner
 
-A modern, responsive Next.js frontend for the LLM chat application. This frontend integrates with the FastAPI backend to provide a seamless chat experience.
+A modern, responsive Next.js frontend for the Meal Prep Planner application. This frontend helps Indian students abroad plan time-efficient, budget-friendly meals with home-style Indian food. The frontend integrates with the FastAPI backend to provide a seamless chat experience.
 
 ## Features
 
+- 🍛 Specialized meal prep planning for Indian students abroad
 - 🎨 Modern, clean UI with gradient background
 - 💬 Real-time chat interface with message history
 - 📱 Responsive design that works on all devices
@@ -11,6 +12,8 @@ A modern, responsive Next.js frontend for the LLM chat application. This fronten
 - 🔄 Automatic scrolling to latest messages
 - ⌨️ Keyboard shortcuts (Enter to send, Shift+Enter for new line)
 - 🎯 Loading states and error handling
+- 🏠 Focus on home-style Indian comfort foods
+- ⏰ Time-efficient meal prep for busy student schedules
 
 ## Prerequisites
 

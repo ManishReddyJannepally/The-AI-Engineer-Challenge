@@ -1,6 +1,6 @@
-# OpenAI Chat API Backend
+# Meal Prep Planner API Backend
 
-This is a FastAPI-based backend service that provides a chat interface using OpenAI's API. The service acts as a supportive mental coach, helping users with stress, motivation, habits, and confidence.
+This is a FastAPI-based backend service that provides a chat interface using OpenAI's API. The service acts as a meal prep planner assistant, specializing in helping Indian students studying abroad create practical, time-efficient meal plans that incorporate Indian flavors and comfort foods into their busy schedules.
 
 ## Prerequisites
 
@@ -66,7 +66,7 @@ lsof -ti:8000 | xargs kill -9
 }
 ```
 
-The chat endpoint uses OpenAI's GPT-5 model with a supportive mental coach system prompt to provide helpful responses.
+The chat endpoint uses OpenAI's GPT-5 model with a meal prep planner assistant system prompt, specifically designed to help Indian students abroad plan meals that are budget-friendly, time-efficient, and remind them of home.
 
 ### Root Endpoint
 - **URL**: `/`

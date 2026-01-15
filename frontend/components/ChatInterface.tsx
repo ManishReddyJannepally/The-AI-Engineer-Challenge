@@ -3,7 +3,10 @@
 /**
  * ChatInterface Component
  * 
- * A chat interface component that allows users to interact with the LLM backend.
+ * A chat interface component for the Meal Prep Planner application.
+ * Helps Indian students abroad plan time-efficient, budget-friendly meals
+ * that incorporate home-style Indian food into their busy schedules.
+ * 
  * Features:
  * - Real-time message display with user/assistant distinction
  * - Auto-scrolling to latest messages
@@ -33,7 +36,7 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'Hello! I\'m your supportive mental coach. How can I help you today?',
+      content: 'Namaste! 👋 I\'m your meal prep planner assistant. I help Indian students abroad create time-efficient meal plans that bring the comfort of home food to your busy schedule. Whether you\'re juggling studies and part-time work, I\'ll help you plan budget-friendly, make-ahead meals that remind you of home. What would you like help with today?',
       timestamp: new Date(),
     },
   ]);
@@ -157,10 +160,10 @@ export default function ChatInterface() {
             marginBottom: '4px',
           }}
         >
-          Mental Coach Chat
+          🍛 Meal Prep Planner
         </h1>
         <p style={{ fontSize: '14px', color: '#666' }}>
-          Your supportive AI companion for stress, motivation, habits, and confidence
+          Your AI assistant for planning Indian meals that fit your busy student life abroad
         </p>
       </div>
 
