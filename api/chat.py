@@ -1,6 +1,3 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
@@ -9,15 +6,8 @@ import json
 # Load environment variables
 load_dotenv()
 
-# Initialize OpenAI client
+# Initialize OpenAI client (will be initialized in handler if key exists)
 openai_api_key = os.getenv("OPENAI_API_KEY")
-if not openai_api_key:
-    raise ValueError("OPENAI_API_KEY environment variable is not set")
-
-client = OpenAI(api_key=openai_api_key)
-
-class ChatRequest(BaseModel):
-    message: str
 
 def handler(request):
     """
@@ -25,6 +15,20 @@ def handler(request):
     Vercel passes the request as a dictionary with 'body' key
     """
     try:
+        # Check if API key is configured
+        if not openai_api_key:
+            return {
+                'statusCode': 500,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                },
+                'body': json.dumps({'detail': 'OPENAI_API_KEY not configured'})
+            }
+        
+        # Initialize client
+        client = OpenAI(api_key=openai_api_key)
+        
         # Vercel passes request as a dict with 'body' as a string
         if isinstance(request, dict):
             body_str = request.get('body', '{}')
