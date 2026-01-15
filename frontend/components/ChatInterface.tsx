@@ -17,6 +17,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { sendMessage } from '@/lib/api';
+import MealPreferences, { MealPreferences as MealPreferencesType } from './MealPreferences';
 
 /**
  * Message interface representing a chat message
@@ -42,6 +43,15 @@ export default function ChatInterface() {
   ]);
   const [input, setInput] = useState(''); // Current input text
   const [isLoading, setIsLoading] = useState(false); // Loading state for API calls
+  
+  // Meal preferences state
+  const [preferences, setPreferences] = useState<MealPreferencesType>({
+    country: '',
+    diet: '',
+    budgetLevel: '',
+    prepTime: 30, // Default to 30 minutes
+    preferredStore: '',
+  });
   
   // Refs for DOM manipulation
   const messagesEndRef = useRef<HTMLDivElement>(null); // Reference to scroll target
@@ -96,7 +106,8 @@ export default function ChatInterface() {
     setIsLoading(true);
 
     try {
-      const response = await sendMessage(userMessage.content);
+      // Include preferences in the API call
+      const response = await sendMessage(userMessage.content, preferences);
       const assistantMessage: Message = {
         role: 'assistant',
         content: response.reply,
@@ -166,6 +177,12 @@ export default function ChatInterface() {
           Your AI assistant for planning Indian meals that fit your busy student life abroad
         </p>
       </div>
+
+      {/* Meal Preferences Form */}
+      <MealPreferences
+        preferences={preferences}
+        onPreferencesChange={setPreferences}
+      />
 
       {/* Messages Container */}
       <div
