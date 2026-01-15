@@ -1,10 +1,12 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
+import json
 
+# Load environment variables
 load_dotenv()
 
 app = FastAPI()
@@ -17,7 +19,9 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Initialize OpenAI client (will be None if key is missing, handled in endpoint)
+openai_api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=openai_api_key) if openai_api_key else None
 
 class ChatRequest(BaseModel):
     message: str
@@ -27,9 +31,12 @@ def root():
     return {"status": "ok"}
 
 @app.post("/api/chat")
-def chat(request: ChatRequest):
-    if not os.getenv("OPENAI_API_KEY"):
+async def chat(request: ChatRequest):
+    if not openai_api_key:
         raise HTTPException(status_code=500, detail="OPENAI_API_KEY not configured")
+    
+    if not client:
+        raise HTTPException(status_code=500, detail="OpenAI client not initialized")
     
     try:
         user_message = request.message
@@ -70,3 +77,21 @@ def chat(request: ChatRequest):
         elif "api key" in error_message.lower() or "authentication" in error_message.lower():
             error_message = "OpenAI API key is invalid or missing. Please check your OPENAI_API_KEY environment variable."
         raise HTTPException(status_code=500, detail=f"Error calling OpenAI API: {error_message}")
+
+# Vercel serverless function handler
+# Vercel expects a handler function that receives the request
+def handler(request):
+    """
+    Vercel serverless function handler for FastAPI
+    Uses Mangum adapter to convert ASGI app to AWS Lambda/API Gateway format
+    """
+    try:
+        from mangum import Mangum
+        handler_instance = Mangum(app, lifespan="off")
+        return handler_instance(request)
+    except ImportError:
+        # Fallback if mangum is not available
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": "Mangum adapter not available. Please install mangum: pip install mangum"})
+        }
