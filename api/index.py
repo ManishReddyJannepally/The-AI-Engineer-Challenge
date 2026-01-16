@@ -77,21 +77,3 @@ async def chat(request: ChatRequest):
         elif "api key" in error_message.lower() or "authentication" in error_message.lower():
             error_message = "OpenAI API key is invalid or missing. Please check your OPENAI_API_KEY environment variable."
         raise HTTPException(status_code=500, detail=f"Error calling OpenAI API: {error_message}")
-
-# Vercel serverless function handler
-# Vercel expects a handler function that receives the request
-def handler(request):
-    """
-    Vercel serverless function handler for FastAPI
-    Uses Mangum adapter to convert ASGI app to AWS Lambda/API Gateway format
-    """
-    try:
-        from mangum import Mangum
-        handler_instance = Mangum(app, lifespan="off")
-        return handler_instance(request)
-    except ImportError:
-        # Fallback if mangum is not available
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"error": "Mangum adapter not available. Please install mangum: pip install mangum"})
-        }
