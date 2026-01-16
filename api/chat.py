@@ -1,50 +1,9 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from openai import OpenAI
+from http.server import BaseHTTPRequestHandler
+import json
 import os
-from dotenv import load_dotenv
+from openai import OpenAI
 
-# Load environment variables
-load_dotenv()
-
-# Create FastAPI app - Vercel auto-detects this
-app = FastAPI()
-
-# CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Initialize OpenAI client
-openai_api_key = os.getenv("OPENAI_API_KEY")
-client = None
-if openai_api_key:
-    client = OpenAI(api_key=openai_api_key)
-
-class ChatRequest(BaseModel):
-    message: str
-
-@app.post("/")
-async def chat(request: ChatRequest):
-    """
-    Chat endpoint - Vercel will route /api/chat to this function
-    """
-    if not openai_api_key:
-        raise HTTPException(status_code=500, detail="OPENAI_API_KEY not configured")
-    
-    if not client:
-        raise HTTPException(status_code=500, detail="OpenAI client not initialized")
-    
-    try:
-        user_message = request.message
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": """
+SYSTEM_PROMPT = """
                 You are a helpful meal prep planner assistant specializing in helping Indian students studying abroad. 
                 You understand the challenges of balancing busy schedules with studies and part-time work, and you know how much Indian students miss home food while living in western countries. 
                 You help create practical, time-efficient meal prep plans that incorporate Indian flavors and comfort foods. 
@@ -64,16 +23,61 @@ async def chat(request: ChatRequest):
                 3) Meal Prep Plan (Step-by-step Sunday prep)
                 4) Storage Tips (fridge/freezer)
                 5) Estimated Cost Range (rough)
-                
-                """},
-                {"role": "user", "content": user_message}
-            ]
-        )
-        return {"reply": response.choices[0].message.content}
-    except Exception as e:
-        error_message = str(e)
-        if "api key" in error_message.lower() or "authentication" in error_message.lower():
-            error_message = "OpenAI API key is invalid or missing."
-        elif "model" in error_message.lower():
-            error_message = f"Model error: {error_message}"
-        raise HTTPException(status_code=500, detail=f"Error calling OpenAI API: {error_message}")
+""".strip()
+
+
+class handler(BaseHTTPRequestHandler):
+    def do_POST(self):
+        try:
+            api_key = os.getenv("OPENAI_API_KEY")
+            if not api_key:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "OPENAI_API_KEY not configured"}).encode())
+                return
+
+            content_length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_length).decode("utf-8")
+            data = json.loads(body or "{}")
+
+            message = data.get("message", "").strip()
+            if not message:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "Missing 'message'"}).encode())
+                return
+
+            client = OpenAI(api_key=api_key)
+
+            resp = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": message},
+                ],
+            )
+
+            reply = resp.choices[0].message.content
+
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps({"reply": reply}).encode())
+
+        except Exception as e:
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+    def do_OPTIONS(self):
+        # CORS preflight
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
