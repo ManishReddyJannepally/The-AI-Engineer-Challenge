@@ -4,10 +4,11 @@
   "outputDirectory": "frontend/.next",
   "installCommand": "cd frontend && npm install",
   "framework": "nextjs",
-  "functions": {
-    "api/chat.py": {
-      "runtime": "@vercel/python"
-    }
-  }
+  "builds": [
+    { "src": "api/index.py", "use": "@vercel/python" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "api/index.py" },
+    { "src": "/(.*)", "dest": "frontend/$1" }
+  ]
 }
-
