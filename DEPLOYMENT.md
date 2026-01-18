@@ -28,22 +28,23 @@ git push origin main
 **CRITICAL SETTINGS - Follow these exactly:**
 
 #### Root Directory
-- **DO NOT CHANGE** - Leave Root Directory as `.` (root/empty)
-- ⚠️ **DO NOT** set it to `frontend` - this will hide the `api/` folder!
+- **Set Root Directory to:** `frontend` ⚠️ (This is the correct setting!)
+- The `api/` folder is now inside `frontend/` directory
 
 #### Framework Preset
 - Vercel should auto-detect **Next.js**
 - If not, select **Next.js** manually
 
 #### Build and Output Settings
-- **Build Command:** Leave empty (Vercel will auto-detect from `frontend/package.json`)
-- **Output Directory:** Leave empty (Vercel will use `frontend/.next`)
+- **Build Command:** Leave empty (Vercel will auto-detect)
+- **Output Directory:** Leave empty (Vercel will use `.next`)
 - **Install Command:** Leave empty (Vercel will auto-detect)
 
-**Why?** When Root Directory is `.` (root), Vercel will:
-- Auto-detect Next.js in `frontend/` directory
-- Auto-detect Python API in `api/` directory
-- Build everything correctly
+**Why?** When Root Directory is `frontend`:
+- Vercel builds from the `frontend/` directory
+- Next.js is auto-detected
+- Python API in `frontend/api/` is auto-detected by Vercel
+- Everything works correctly!
 
 ### 4. Environment Variables
 
