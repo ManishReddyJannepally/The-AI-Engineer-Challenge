@@ -28,10 +28,11 @@ if openai_api_key:
 class ChatRequest(BaseModel):
     message: str
 
-@app.post("/chat")
+@app.post("/")
 async def chat(request: ChatRequest):
     """
-    Chat endpoint - accessible at /api/chat
+    Chat endpoint - Vercel routes api/chat.py to /api/chat
+    Route is "/" because Vercel handles the /api/chat path
     """
     if not openai_api_key:
         raise HTTPException(status_code=500, detail="OPENAI_API_KEY not configured")
@@ -77,3 +78,4 @@ async def chat(request: ChatRequest):
         elif "model" in error_message.lower():
             error_message = f"Model error: {error_message}"
         raise HTTPException(status_code=500, detail=f"Error calling OpenAI API: {error_message}")
+
