@@ -1,158 +1,114 @@
 # Deployment Guide for Vercel
 
-This guide will help you deploy your LLM chat application to Vercel.
+This guide will help you deploy your Meal Prep Planner application to Vercel.
 
 ## Prerequisites
 
-1. ✅ Code pushed to GitHub (your repository)
+1. ✅ Code pushed to GitHub
 2. ✅ Vercel account (sign up at [vercel.com](https://vercel.com) with GitHub)
-3. ✅ OpenAI API key (for the backend)
+3. ✅ OpenAI API key
 
-## Deployment Steps
+## Step-by-Step Deployment
 
-### Option 1: Deploy via Vercel Dashboard (Recommended)
+### 1. Push Your Code to GitHub
 
-1. **Go to Vercel Dashboard**
-   - Visit [vercel.com](https://vercel.com) and sign in with GitHub
-   - Click "Add New Project"
+Make sure all your code is committed and pushed:
+```bash
+git push origin main
+```
 
-2. **Import Your Repository**
-   - Select your GitHub repository
-   - Vercel will auto-detect it's a Next.js project
+### 2. Import Project in Vercel
 
-3. **Configure Project Settings**
-   
-   **IMPORTANT:** The `vercel.json` is configured to handle both frontend and API:
-   
-   - **Root Directory:** Leave as `.` (root) ⚠️ (DO NOT set to `frontend` - this hides the `api/` folder!)
-   - **Framework Preset:** Next.js (will be detected from vercel.json config)
-   - **Build Command:** Already configured in vercel.json (`cd frontend && npm install && npm run build`)
-   - **Output Directory:** Already configured in vercel.json (`frontend/.next`)
-   - **Install Command:** Already configured in vercel.json (`cd frontend && npm install`)
-   
-   **Critical:** If you set Root Directory to `frontend`, Vercel won't see the `api/` folder and your backend will return 404!
+1. Go to [vercel.com](https://vercel.com) and sign in
+2. Click **"Add New Project"**
+3. Import your GitHub repository: `ManishReddyJannepally/The-AI-Engineer-Challenge`
 
-4. **Environment Variables**
-   
-   Add these in the Vercel dashboard:
-   - `OPENAI_API_KEY` - Your OpenAI API key (for backend)
-   - `NEXT_PUBLIC_API_URL` - Leave empty (uses relative URLs in production)
+### 3. Configure Project Settings
 
-5. **Deploy**
-   - Click "Deploy"
-   - Wait for build to complete
-   - Your app will be live!
+**CRITICAL SETTINGS - Follow these exactly:**
 
-### Option 2: Deploy via Vercel CLI
+#### Root Directory
+- **DO NOT CHANGE** - Leave Root Directory as `.` (root/empty)
+- ⚠️ **DO NOT** set it to `frontend` - this will hide the `api/` folder!
 
-1. **Install Vercel CLI** (if not already installed):
-   ```bash
-   npm install -g vercel
-   ```
+#### Framework Preset
+- Vercel should auto-detect **Next.js**
+- If not, select **Next.js** manually
 
-2. **Login to Vercel**:
-   ```bash
-   vercel login
-   ```
+#### Build and Output Settings
+- **Build Command:** Leave empty (Vercel will auto-detect from `frontend/package.json`)
+- **Output Directory:** Leave empty (Vercel will use `frontend/.next`)
+- **Install Command:** Leave empty (Vercel will auto-detect)
 
-3. **Deploy from project root**:
-   ```bash
-   cd /Users/manish/Documents/AIEngineer/The-AI-Engineer-Challenge
-   vercel
-   ```
+**Why?** When Root Directory is `.` (root), Vercel will:
+- Auto-detect Next.js in `frontend/` directory
+- Auto-detect Python API in `api/` directory
+- Build everything correctly
 
-4. **Follow the prompts**:
-   - Link to existing project or create new
-   - Set root directory to `frontend` when prompted
-   - Add environment variables when prompted
+### 4. Environment Variables
 
-5. **For production deployment**:
-   ```bash
-   vercel --prod
-   ```
+Go to **Settings → Environment Variables** and add:
 
-## Important Configuration Notes
+| Name | Value | Environment |
+|------|-------|-------------|
+| `OPENAI_API_KEY` | `sk-your-actual-key-here` | Production, Preview, Development |
 
-### For Monorepo Structure
+**Important:** 
+- Make sure to select all three environments (Production, Preview, Development)
+- Click **Save** after adding
 
-Since your Next.js app is in `frontend/`, you have two options:
+### 5. Deploy
 
-**Option A: Set Root Directory in Vercel Dashboard**
-- In Vercel project settings, set "Root Directory" to `frontend`
-- This is the easiest approach
+1. Click **"Deploy"** button
+2. Wait for build to complete (usually 2-3 minutes)
+3. Your app will be live at the provided URL!
 
-**Option B: Use vercel.json (Current Setup)**
-- The current `vercel.json` should work, but you may need to adjust:
-  - Vercel might need the root directory set in dashboard anyway
-  - The rewrites should handle API routing
+## How It Works
 
-### Backend API Routing
+### Frontend (Next.js)
+- Located in `frontend/` directory
+- Vercel auto-detects and builds it
+- Served at your domain root (`/`)
 
-The `vercel.json` is configured to:
-- Route `/api/*` requests to your Python backend (`/api/index.py`)
-- Serve the Next.js frontend for all other routes
-
-**Note:** Vercel will automatically handle Python serverless functions in the `/api` directory.
-
-## Environment Variables
-
-Make sure to set these in Vercel Dashboard → Project Settings → Environment Variables:
-
-1. **OPENAI_API_KEY** (Required)
-   - Your OpenAI API key
-   - Used by the backend to call OpenAI API
-   - Mark as "Production" and "Preview" environments
-
-2. **NEXT_PUBLIC_API_URL** (Optional)
-   - Leave empty for production (uses relative URLs)
-   - Only set if your backend is hosted separately
-
-## Testing Your Deployment
-
-1. After deployment, visit your Vercel URL
-2. Test the chat interface
-3. Check browser console for any errors
-4. Verify API calls are working
+### Backend (Python API)
+- Located in `api/` directory
+- Vercel auto-detects Python files in `api/`
+- `api/chat.py` → accessible at `/api/chat`
+- Uses FastAPI with auto-detection
 
 ## Troubleshooting
 
+### Error: "cd frontend: No such file or directory"
+**Solution:** Root Directory must be `.` (root), NOT `frontend`
+
+### Error: "404 NOT_FOUND" on `/api/chat`
+**Solution:** 
+1. Check Root Directory is `.` (not `frontend`)
+2. Verify `api/chat.py` exists in repository
+3. Check `api/requirements.txt` has FastAPI dependencies
+
+### Error: "OPENAI_API_KEY not configured"
+**Solution:** 
+1. Go to Settings → Environment Variables
+2. Add `OPENAI_API_KEY` with your actual key
+3. Make sure it's enabled for Production environment
+4. Redeploy
+
 ### Build Fails
+**Solution:**
+1. Check Vercel build logs for specific errors
+2. Verify `frontend/package.json` exists
+3. Make sure Root Directory is `.` (root)
 
-- **Error: "Cannot find module"**
-  - Make sure root directory is set to `frontend` in Vercel settings
-  - Or ensure `package.json` is in the correct location
+## Testing Your Deployment
 
-- **Error: "API route not found"**
-  - Check that `vercel.json` rewrites are correct
-  - Verify `/api/index.py` exists in the repository
-
-### API Not Working
-
-- **CORS errors**
-  - Backend CORS is configured to allow all origins (`*`)
-  - Should work, but check if Vercel is adding extra headers
-
-- **500 errors from API**
-  - Check that `OPENAI_API_KEY` is set in Vercel environment variables
-  - Check Vercel function logs for detailed error messages
-
-### Frontend Not Loading
-
-- **404 errors**
-  - Verify root directory is set correctly
-  - Check that Next.js build completed successfully
-  - Review build logs in Vercel dashboard
-
-## Post-Deployment
-
-1. **Share your app**: Copy the Vercel deployment URL
-2. **Test in incognito**: Make sure it works for others
-3. **Monitor logs**: Check Vercel dashboard for any errors
-4. **Custom domain** (optional): Add your own domain in Vercel settings
+1. Visit your Vercel deployment URL
+2. Fill out the meal preferences form
+3. Send a test message
+4. Verify the AI responds correctly
 
 ## Need Help?
 
-- Check Vercel logs in the dashboard
+- Check Vercel logs in the Deployments tab
 - Review [Vercel documentation](https://vercel.com/docs)
-- Check your repository's README for additional setup info
-
+- Check your repository's README for additional info
