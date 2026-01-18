@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Create FastAPI app - Vercel auto-detects this
+# Create FastAPI app - Vercel requires this in api/index.py
 app = FastAPI()
 
 # CORS middleware
@@ -28,11 +28,11 @@ if openai_api_key:
 class ChatRequest(BaseModel):
     message: str
 
-@app.post("/")
+@app.post("/chat")
 async def chat(request: ChatRequest):
     """
-    Chat endpoint - Vercel routes api/chat.py to /api/chat
-    Route is "/" because Vercel handles the /api/chat path
+    Chat endpoint - accessible at /api/index/chat
+    But we'll configure Vercel to rewrite /api/chat to /api/index/chat
     """
     if not openai_api_key:
         raise HTTPException(status_code=500, detail="OPENAI_API_KEY not configured")
@@ -78,4 +78,3 @@ async def chat(request: ChatRequest):
         elif "model" in error_message.lower():
             error_message = f"Model error: {error_message}"
         raise HTTPException(status_code=500, detail=f"Error calling OpenAI API: {error_message}")
-
