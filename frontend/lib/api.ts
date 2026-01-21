@@ -56,34 +56,22 @@ export async function sendMessage(
   message: string,
   preferences?: MealPreferences
 ): Promise<ChatResponse> {
-  // Try /api/chat first (with rewrite), fallback to /api/index/chat if needed
+  // Use /api/index/chat directly (Vercel routes frontend/api/index.py to /api/index)
   const apiUrl = getApiUrl();
-  let url = apiUrl ? `${apiUrl}/api/chat` : '/api/chat';
+  const url = apiUrl ? `${apiUrl}/api/index/chat` : '/api/index/chat';
   
   // Include preferences in the message context if provided
   const messageWithContext = preferences
     ? `${message}${formatPreferencesContext(preferences)}`
     : message;
   
-  let response = await fetch(url, {
+  const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ message: messageWithContext } as ChatRequest),
   });
-
-  // If /api/chat returns 404, try /api/index/chat directly
-  if (response.status === 404) {
-    url = apiUrl ? `${apiUrl}/api/index/chat` : '/api/index/chat';
-    response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ message: messageWithContext } as ChatRequest),
-    });
-  }
 
   if (!response.ok) {
     let errorMessage = `HTTP error! status: ${response.status}`;
