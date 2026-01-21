@@ -2,7 +2,7 @@
  * API client for communicating with the FastAPI backend
  */
 
-import { MealPreferences } from '@/components/MealPreferences';
+import { MealPreferences } from '../components/MealPreferences';
 
 interface ChatRequest {
   message: string;
@@ -73,8 +73,20 @@ export async function sendMessage(
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
-    throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+    let errorMessage = `HTTP error! status: ${response.status}`;
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.detail || errorData.message || errorMessage;
+    } catch (e) {
+      // If response is not JSON, try to get text
+      try {
+        const text = await response.text();
+        errorMessage = text || errorMessage;
+      } catch (textError) {
+        // If that also fails, use the status-based message
+      }
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json();
