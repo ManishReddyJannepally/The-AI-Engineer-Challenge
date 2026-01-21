@@ -29,11 +29,13 @@ class ChatRequest(BaseModel):
     message: str
 
 @app.get("/")
+@app.get("")
 async def root():
     """Health check endpoint"""
     return {"status": "ok", "message": "API is working"}
 
 @app.post("/chat")
+@app.post("chat")
 async def chat(request: ChatRequest):
     """
     Chat endpoint - accessible at /api/index/chat
