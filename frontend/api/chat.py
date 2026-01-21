@@ -28,12 +28,18 @@ if openai_api_key:
 class ChatRequest(BaseModel):
     message: str
 
+# Health check - try multiple route patterns for Vercel compatibility
 @app.get("/")
+@app.get("")
+@app.get("/api/chat")
 async def health():
     """Health check endpoint"""
     return {"status": "ok", "message": "API is working"}
 
+# Chat endpoint - try multiple route patterns for Vercel compatibility  
 @app.post("/")
+@app.post("")
+@app.post("/api/chat")
 async def chat(request: ChatRequest):
     """
     Chat endpoint - Vercel routes api/chat.py to /api/chat
