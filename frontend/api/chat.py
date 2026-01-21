@@ -78,4 +78,3 @@ async def chat(request: ChatRequest):
         elif "model" in error_message.lower():
             error_message = f"Model error: {error_message}"
         raise HTTPException(status_code=500, detail=f"Error calling OpenAI API: {error_message}")
-
