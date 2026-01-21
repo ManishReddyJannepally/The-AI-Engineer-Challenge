@@ -1,6 +1,12 @@
-# Deployment Guide for Vercel
+# Deployment Guide for Vercel - FIXED VERSION
 
 This guide will help you deploy your Meal Prep Planner application to Vercel.
+
+## ⚠️ CRITICAL: Root Directory Setting
+
+**THE MOST IMPORTANT SETTING:** In Vercel, you MUST set Root Directory to `frontend`.
+
+If Root Directory is NOT set to `frontend`, you will see `{"detail":"Not Found"}` instead of your Next.js app.
 
 ## Prerequisites
 
@@ -23,33 +29,26 @@ git push origin main
 2. Click **"Add New Project"**
 3. Import your GitHub repository: `ManishReddyJannepally/The-AI-Engineer-Challenge`
 
-### 3. Configure Project Settings
+### 3. Configure Project Settings - ⚠️ DO THIS FIRST!
 
-**CRITICAL SETTINGS - Follow these exactly:**
+**BEFORE ANYTHING ELSE - Set Root Directory:**
 
-#### Root Directory
-- **Set Root Directory to:** `frontend` ⚠️ (This is REQUIRED!)
-- This tells Vercel to build from the `frontend/` directory
-- The `api/` folder is inside `frontend/` directory (`frontend/api/`)
+1. Go to **Settings → General**
+2. Scroll to **"Root Directory"**
+3. Click **"Edit"**
+4. Type: `frontend` (exactly this, no quotes, no trailing slash)
+5. Click **"Save"**
+
+**This is the #1 cause of `{"detail":"Not Found"}` errors!**
 
 #### Framework Preset
-- Vercel should auto-detect **Next.js**
+- Vercel should auto-detect **Next.js** after setting Root Directory
 - If not, select **Next.js** manually
 
 #### Build and Output Settings
-- **Build Command:** Leave empty (Vercel will auto-detect `npm run build`)
+- **Build Command:** Leave empty (Vercel will auto-detect)
 - **Output Directory:** Leave empty (Vercel will use `.next`)
-- **Install Command:** Leave empty (Vercel will auto-detect `npm install`)
-
-**Why Root Directory = `frontend`?**
-- When Root Directory is `frontend`, Vercel sees:
-  - `frontend/package.json` → Next.js app
-  - `frontend/api/index.py` → Python FastAPI API
-- Vercel automatically:
-  - Builds Next.js from `frontend/`
-  - Detects Python API in `frontend/api/`
-  - Routes Next.js to `/` (root)
-  - Routes API to `/api/*`
+- **Install Command:** Leave empty (Vercel will auto-detect)
 
 ### 4. Environment Variables
 
@@ -66,7 +65,7 @@ Go to **Settings → Environment Variables** and add:
 
 ### 5. Deploy
 
-1. Click **"Deploy"** button
+1. Click **"Deploy"** button (or it will auto-deploy after you push to GitHub)
 2. Wait for build to complete (usually 2-3 minutes)
 3. Your app will be live at the provided URL!
 
@@ -74,20 +73,33 @@ Go to **Settings → Environment Variables** and add:
 
 ### Frontend (Next.js)
 - Located in `frontend/` directory
-- Vercel auto-detects and builds it when Root Directory = `frontend`
+- When Root Directory = `frontend`, Vercel builds Next.js from that directory
 - Served at your domain root (`/`)
 
 ### Backend (Python API)
 - Located in `frontend/api/` directory
-- Vercel auto-detects Python files in `api/` subdirectory
-- `frontend/api/index.py` → accessible at `/api/index/chat`
+- When Root Directory = `frontend`, Vercel sees `frontend/api/index.py` as `api/index.py`
+- `frontend/api/index.py` with route `/chat` → accessible at `/api/index/chat`
 - `vercel.json` rewrites `/api/chat` → `/api/index/chat`
-- Uses FastAPI with auto-detection
 
 ## Troubleshooting
 
+### ❌ App shows `{"detail":"Not Found"}`
+
+**This means FastAPI is serving `/` instead of Next.js!**
+
+**Solution:**
+1. Go to Vercel → Your Project → Settings → General
+2. Check **"Root Directory"** - it MUST be `frontend` (not `.` or empty)
+3. If it's wrong, change it to `frontend` and click Save
+4. Go to Deployments tab
+5. Click the three dots (⋯) on the latest deployment
+6. Click **"Redeploy"**
+7. Wait for build to complete
+8. Test again
+
 ### Error: "cd frontend: No such file or directory"
-**Solution:** Root Directory must be `frontend`, NOT `.` (root)
+**Solution:** Root Directory must be `.` (root), NOT `frontend`. But then you'll need different config. **Recommended: Use Root Directory = `frontend`**
 
 ### Error: "No Next.js version detected"
 **Solution:** 
@@ -100,14 +112,6 @@ Go to **Settings → Environment Variables** and add:
 1. Verify `frontend/api/index.py` exists
 2. Check that it has `app = FastAPI()` defined
 3. Make sure `frontend/api/requirements.txt` exists with FastAPI dependencies
-
-### App shows `{"detail":"Not Found"}` or `{"status":"ok"}`
-**Solution:** 
-1. **Root Directory MUST be `frontend`** (not `.`)
-2. This ensures Next.js serves `/` and API only handles `/api/*`
-3. If Root Directory is `.`, Vercel might route `/` to the API instead of Next.js
-4. Go to Vercel Settings → General → Root Directory → Set to `frontend`
-5. Redeploy
 
 ### Error: "OPENAI_API_KEY not configured"
 **Solution:** 
@@ -126,7 +130,7 @@ Go to **Settings → Environment Variables** and add:
 ## Testing Your Deployment
 
 1. Visit your Vercel deployment URL
-2. You should see the Meal Prep Planner UI (not JSON)
+2. **You should see the Meal Prep Planner UI** (not JSON like `{"detail":"Not Found"}`)
 3. Fill out the meal preferences form
 4. Send a test message
 5. Verify the AI responds correctly
