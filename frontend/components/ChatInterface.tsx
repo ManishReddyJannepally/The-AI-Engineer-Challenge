@@ -118,13 +118,16 @@ export default function ChatInterface() {
       // Provide more helpful error messages
       let errorContent = 'Sorry, I encountered an error. Please try again.';
       if (error instanceof Error) {
-        // Show user-friendly error message
+        // Show the actual error message to help debug
+        errorContent = `Error: ${error.message}`;
+        
+        // Add helpful context for common errors
         if (error.message.includes('OPENAI_API_KEY')) {
           errorContent = 'Error: OpenAI API key is not configured. Please check your backend setup.';
-        } else if (error.message.includes('HTTP error')) {
-          errorContent = 'Error: Could not connect to the backend. Please make sure the backend server is running on port 8000.';
-        } else {
-          errorContent = `Error: ${error.message}`;
+        } else if (error.message.includes('Not Found') || error.message.includes('404')) {
+          errorContent = `Error: API endpoint not found (${error.message}). The backend might not be deployed correctly.`;
+        } else if (error.message.includes('500')) {
+          errorContent = `Error: Server error (${error.message}). Please check the backend logs.`;
         }
       }
       
