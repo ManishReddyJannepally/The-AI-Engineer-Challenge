@@ -63,6 +63,12 @@ export async function sendMessage(
   // Get the correct endpoint based on environment
   const url = getApiEndpoint();
   
+  // Debug: log the URL being used (only in browser)
+  if (typeof window !== 'undefined') {
+    console.log('API Endpoint:', url);
+    console.log('Hostname:', window.location.hostname);
+  }
+  
   // Include preferences in the message context if provided
   const messageWithContext = preferences
     ? `${message}${formatPreferencesContext(preferences)}`
@@ -90,6 +96,8 @@ export async function sendMessage(
         // If that also fails, use the status-based message
       }
     }
+    // Add URL to error for debugging
+    console.error('API Error:', { url, status: response.status, error: errorMessage });
     throw new Error(errorMessage);
   }
 
