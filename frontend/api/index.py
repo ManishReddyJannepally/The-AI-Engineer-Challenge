@@ -28,6 +28,11 @@ if openai_api_key:
 class ChatRequest(BaseModel):
     message: str
 
+@app.get("/")
+async def root():
+    """Health check endpoint"""
+    return {"status": "ok", "message": "API is working"}
+
 @app.post("/chat")
 async def chat(request: ChatRequest):
     """
