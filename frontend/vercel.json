@@ -2,10 +2,5 @@
   "version": 2,
   "buildCommand": "npm install && npm run build",
   "outputDirectory": ".next",
-  "framework": "nextjs",
-  "functions": {
-    "api/index.py": {
-      "runtime": "python3.12"
-    }
-  }
+  "framework": "nextjs"
 }
