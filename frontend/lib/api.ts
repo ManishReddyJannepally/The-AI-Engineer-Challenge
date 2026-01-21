@@ -56,21 +56,34 @@ export async function sendMessage(
   message: string,
   preferences?: MealPreferences
 ): Promise<ChatResponse> {
+  // Try /api/chat first (with rewrite), fallback to /api/index/chat if needed
   const apiUrl = getApiUrl();
-  const url = apiUrl ? `${apiUrl}/api/chat` : '/api/chat';
+  let url = apiUrl ? `${apiUrl}/api/chat` : '/api/chat';
   
   // Include preferences in the message context if provided
   const messageWithContext = preferences
     ? `${message}${formatPreferencesContext(preferences)}`
     : message;
   
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ message: messageWithContext } as ChatRequest),
   });
+
+  // If /api/chat returns 404, try /api/index/chat directly
+  if (response.status === 404) {
+    url = apiUrl ? `${apiUrl}/api/index/chat` : '/api/index/chat';
+    response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message: messageWithContext } as ChatRequest),
+    });
+  }
 
   if (!response.ok) {
     let errorMessage = `HTTP error! status: ${response.status}`;
@@ -110,4 +123,3 @@ export async function checkHealth(): Promise<{ status: string }> {
 
   return response.json();
 }
-
