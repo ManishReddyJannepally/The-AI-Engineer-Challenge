@@ -16,7 +16,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
-import { sendMessage } from '@/lib/api';
+import { sendMessage } from '../lib/api';
 import MealPreferences, { MealPreferences as MealPreferencesType } from './MealPreferences';
 
 /**
