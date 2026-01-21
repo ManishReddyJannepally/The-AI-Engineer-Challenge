@@ -25,8 +25,8 @@ function getApiEndpoint(): string {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       return 'http://localhost:8000/api/chat';
     }
-    // Production: use /api/index/chat (Vercel routes frontend/api/index.py to /api/index)
-    return '/api/index/chat';
+    // Production: use /api/chat (Vercel routes frontend/api/chat.py to /api/chat)
+    return '/api/chat';
   }
   // Server-side: use environment variable or default
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
