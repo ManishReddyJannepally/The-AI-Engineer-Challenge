@@ -14,19 +14,23 @@ interface ChatResponse {
 }
 
 /**
- * Get the API base URL based on the environment
- * In production (Vercel), the API is served from the same domain
- * In development, it points to localhost:8000
+ * Get the API base URL and endpoint path based on the environment
+ * In production (Vercel), the API is at /api/index/chat
+ * In development, it points to localhost:8000/api/chat
  */
-function getApiUrl(): string {
-  // In production on Vercel, the API routes are handled by the backend
-  // The Next.js rewrites will handle routing /api/* to the backend
+function getApiEndpoint(): string {
+  // Check if we're in development (localhost)
   if (typeof window !== 'undefined') {
-    // Client-side: use relative URL which will be handled by Next.js rewrites
-    return '';
+    // Client-side: check if we're on localhost
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return 'http://localhost:8000/api/chat';
+    }
+    // Production: use /api/index/chat (Vercel routes frontend/api/index.py to /api/index)
+    return '/api/index/chat';
   }
-  // Server-side: use environment variable or default to localhost
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  // Server-side: use environment variable or default
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  return `${apiUrl}/api/chat`;
 }
 
 /**
@@ -56,9 +60,8 @@ export async function sendMessage(
   message: string,
   preferences?: MealPreferences
 ): Promise<ChatResponse> {
-  // Use /api/index/chat directly (Vercel routes frontend/api/index.py to /api/index)
-  const apiUrl = getApiUrl();
-  const url = apiUrl ? `${apiUrl}/api/index/chat` : '/api/index/chat';
+  // Get the correct endpoint based on environment
+  const url = getApiEndpoint();
   
   // Include preferences in the message context if provided
   const messageWithContext = preferences
@@ -98,8 +101,18 @@ export async function sendMessage(
  * @returns Promise resolving to health status
  */
 export async function checkHealth(): Promise<{ status: string }> {
-  const apiUrl = getApiUrl();
-  const url = apiUrl ? `${apiUrl}/` : '/api';
+  // Check if we're in development (localhost)
+  let url: string;
+  if (typeof window !== 'undefined') {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      url = 'http://localhost:8000/';
+    } else {
+      url = '/api/index/';
+    }
+  } else {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    url = `${apiUrl}/`;
+  }
   
   const response = await fetch(url, {
     method: 'GET',
